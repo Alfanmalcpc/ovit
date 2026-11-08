@@ -10,10 +10,10 @@ const I18N = {
     terminal: 'Terminal Agen',
     operation: 'Operasi',
     emergencyStop: 'Hentikan Operasi',
-    commandPlaceholder: 'Ketik satu perintah untuk semua agen... (Contoh: Bangun sistem REST API Go + UI React)',
+    commandPlaceholder: 'Ketik satu perintah untuk semua agen yang terhubung... (Contoh: Bangun sistem REST API Go + UI React)',
     runCommand: 'Jalankan Perintah',
     running: 'Memproses...',
-    allAgents: 'Semua Agen',
+    allAgents: 'Semua Agen Aktif',
     parallelMode: 'Mode Paralel',
     sequentialMode: 'Mode Bertahap',
     tabChat: 'Percakapan',
@@ -28,12 +28,6 @@ const I18N = {
     davitLabel: 'Alokasi Davit / Donasi',
     saveAgent: 'Simpan Tampilan Agen',
     addNewAgentBtn: '+ Tambah Agen Baru',
-    sphereShape: 'Bulat (Sphere Core)',
-    cubeShape: 'Kubus (Cyber Cube)',
-    crystalShape: 'Kristal (Polyhedron)',
-    torusShape: 'Cincin (Torus)',
-    emptyChat: 'Belum ada percakapan. Ketik perintah di bawah animasi kantor 3D untuk memulai kolaborasi!',
-    emptyTerminal: 'Menunggu output konsol dari CLI agen...',
     statusOnline: 'ONLINE',
     statusProcessing: 'RUNNING',
     davitCounter: 'Davit'
@@ -44,10 +38,10 @@ const I18N = {
     terminal: 'Agent Terminal',
     operation: 'Operation',
     emergencyStop: 'Emergency Stop',
-    commandPlaceholder: 'Type a unified prompt for all agents... (e.g. Build Go REST API + React UI)',
+    commandPlaceholder: 'Type a unified prompt for all connected agents... (e.g. Build Go REST API + React UI)',
     runCommand: 'Execute Command',
     running: 'Processing...',
-    allAgents: 'All Agents',
+    allAgents: 'All Active Agents',
     parallelMode: 'Parallel Mode',
     sequentialMode: 'Sequential Mode',
     tabChat: 'Conversation',
@@ -62,12 +56,6 @@ const I18N = {
     davitLabel: 'Davit / Donation Allocation',
     saveAgent: 'Save Agent Appearance',
     addNewAgentBtn: '+ Add New Agent',
-    sphereShape: 'Sphere Core',
-    cubeShape: 'Cyber Cube',
-    crystalShape: 'Crystal Polyhedron',
-    torusShape: 'Torus Ring',
-    emptyChat: 'No conversation yet. Type a command underneath the 3D office stage to start collaboration!',
-    emptyTerminal: 'Awaiting raw stdout/stderr streams from agent CLI...',
     statusOnline: 'ONLINE',
     statusProcessing: 'RUNNING',
     davitCounter: 'Davit'
@@ -81,11 +69,14 @@ class OvitApp {
     this.activeView = 'terminal';
     this.activeRightTab = 'chat';
     this.agents = [];
+    this.terminalSlots = [
+      { id: 'slot_1', command: '', name: 'Agen 1', active: false, color: '#10B981', shape: 'cube' },
+      { id: 'slot_2', command: '', name: 'Agen 2', active: false, color: '#8B5CF6', shape: 'sphere' },
+      { id: 'slot_3', command: '', name: 'Agen 3', active: false, color: '#FF7A00', shape: 'polyhedron' }
+    ];
     this.isProcessing = false;
     this.stage = null;
     this.customizer = null;
-    this.davitBalance = 10;
-    this.selectedAgentForEdit = null;
 
     this.init();
   }
@@ -95,7 +86,7 @@ class OvitApp {
     this.applyLanguage();
     this.bindEvents();
 
-    // 1. Init 3D Visualizer Stage (Office Room + Robots with Digital Eyes)
+    // 1. Init 3D Visualizer Stage (Office Room with Standby Desks)
     this.stage = new AgentThreeStage('three-canvas-container');
 
     // 2. Init 3D Customizer in Agent Panel
@@ -152,12 +143,26 @@ class OvitApp {
       }
     });
 
+    // Add Terminal Slot Button
+    document.getElementById('add-terminal-slot-btn').addEventListener('click', () => {
+      const newIndex = this.terminalSlots.length + 1;
+      this.terminalSlots.push({
+        id: `slot_${newIndex}`,
+        command: '',
+        name: `Agen ${newIndex}`,
+        active: false,
+        color: '#00E5FF',
+        shape: 'torus'
+      });
+      this.renderTerminalSlots();
+    });
+
     // Command Box Run Button
     document.getElementById('run-command-btn').addEventListener('click', () => {
       this.submitCommand();
     });
 
-    // Command Box Enter Key (Ctrl+Enter or Enter without Shift)
+    // Command Box Enter Key
     document.getElementById('command-input').addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -184,7 +189,7 @@ class OvitApp {
       }
     });
 
-    // Customizer Color change (input and swatches)
+    // Customizer Color change
     document.getElementById('customizer-color').addEventListener('input', (e) => {
       if (this.customizer) {
         this.customizer.updateMesh(document.getElementById('customizer-shape').value, e.target.value);
@@ -227,15 +232,11 @@ class OvitApp {
     const t = I18N[this.currentLang];
     document.getElementById('lang-label').textContent = this.currentLang;
 
-    // Translate marked elements
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.dataset.i18n;
-      if (t[key]) {
-        el.textContent = t[key];
-      }
+      if (t[key]) el.textContent = t[key];
     });
 
-    // Placeholders
     const cmdInput = document.getElementById('command-input');
     if (cmdInput) cmdInput.placeholder = t.commandPlaceholder;
 
@@ -257,9 +258,7 @@ class OvitApp {
 
   switchView(viewName) {
     this.activeView = viewName;
-    document.querySelectorAll('.view-page').forEach(page => {
-      page.classList.add('hidden');
-    });
+    document.querySelectorAll('.view-page').forEach(page => page.classList.add('hidden'));
 
     document.querySelectorAll('.nav-item').forEach(btn => {
       if (btn.dataset.view === viewName) {
@@ -300,20 +299,228 @@ class OvitApp {
     try {
       const res = await fetch('/api/agents');
       const agents = await res.json();
-      this.agents = agents;
+      this.agents = Array.isArray(agents) ? agents : [];
+
+      // Sync terminal slots with saved agents
+      if (this.agents.length > 0) {
+        this.agents.forEach((ag, idx) => {
+          if (this.terminalSlots[idx]) {
+            this.terminalSlots[idx] = {
+              id: ag.id,
+              command: ag.command,
+              name: ag.name,
+              active: true,
+              color: ag.color || '#10B981',
+              shape: ag.shape || 'sphere'
+            };
+          } else {
+            this.terminalSlots.push({
+              id: ag.id,
+              command: ag.command,
+              name: ag.name,
+              active: true,
+              color: ag.color || '#10B981',
+              shape: ag.shape || 'sphere'
+            });
+          }
+        });
+      }
 
       // Update 3D Stage
       if (this.stage) {
-        this.stage.updateAgents(agents);
+        this.stage.updateAgents(this.agents);
       }
 
-      // Update Command Box Target Dropdown
-      this.renderAgentTargetOptions();
+      // Update badge
+      const badge = document.getElementById('active-agents-badge');
+      if (badge) {
+        if (this.agents.length === 0) {
+          badge.textContent = '0 Agen Aktif (Standby)';
+          badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30';
+        } else {
+          badge.textContent = `${this.agents.length} Agen Aktif Terhubung`;
+          badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+        }
+      }
 
-      // Update Agent List in Panel
+      this.renderTerminalSlots();
+      this.renderAgentTargetOptions();
       this.renderAgentsList();
     } catch (e) {
       console.error('Failed to fetch agents:', e);
+    }
+  }
+
+  renderTerminalSlots() {
+    const container = document.getElementById('terminal-slots-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    this.terminalSlots.forEach((slot, index) => {
+      const isConnected = slot.active;
+      const card = document.createElement('div');
+      card.className = `p-2.5 rounded-xl border transition-all flex flex-col justify-between space-y-2 ${
+        isConnected ? 'bg-slate-900/80 border-emerald-500/50' : 'bg-black/50 border-white/10'
+      }`;
+
+      card.innerHTML = `
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-1.5">
+            <span class="w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}"></span>
+            <span class="text-xs font-mono font-bold text-slate-200">Slot ${index + 1}: ${slot.name}</span>
+          </div>
+          <span class="text-[9px] font-mono px-1.5 py-0.5 rounded ${
+            isConnected ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400'
+          }">
+            ${isConnected ? 'AKTIF' : 'KOSONG'}
+          </span>
+        </div>
+
+        <!-- Terminal Command Input Line -->
+        <div class="bg-black/80 rounded-lg px-2 py-1.5 border border-white/10 font-mono flex items-center space-x-2">
+          <span class="text-emerald-400 font-bold text-xs select-none">$</span>
+          <input type="text" class="slot-cmd-input bg-transparent text-xs text-slate-100 placeholder-slate-600 focus:outline-none flex-1"
+            value="${slot.command || ''}"
+            placeholder="ketik codex / agy / hermes"
+            ${isConnected ? 'disabled' : ''}>
+        </div>
+
+        <!-- Action Row -->
+        <div class="flex items-center justify-between pt-0.5">
+          <div class="text-[10px] text-slate-500 font-mono">
+            ${isConnected ? `Model: ${slot.shape}` : 'Tulis perintah di atas'}
+          </div>
+          ${
+            isConnected
+              ? `<button class="deactivate-slot-btn px-2 py-0.5 rounded-lg text-[10px] font-bold bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 transition-all cursor-pointer">
+                  Matikan
+                </button>`
+              : `<button class="activate-slot-btn px-2 py-0.5 rounded-lg text-[10px] font-bold bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-300 border border-emerald-500/40 transition-all cursor-pointer">
+                  Aktifkan ⚡
+                </button>`
+          }
+        </div>
+      `;
+
+      // Auto-suggest name on typing
+      const cmdInput = card.querySelector('.slot-cmd-input');
+      if (cmdInput && !isConnected) {
+        cmdInput.addEventListener('input', (e) => {
+          const val = e.target.value.trim().toLowerCase();
+          if (val === 'codex') {
+            slot.name = 'Codex';
+            slot.color = '#10B981';
+            slot.shape = 'cube';
+          } else if (val === 'agy' || val === 'antigravity') {
+            slot.name = 'Antigravity';
+            slot.color = '#8B5CF6';
+            slot.shape = 'polyhedron';
+          } else if (val === 'hermes') {
+            slot.name = 'Hermes';
+            slot.color = '#FF7A00';
+            slot.shape = 'sphere';
+          }
+          slot.command = e.target.value.trim();
+        });
+      }
+
+      // Activate Button
+      const actBtn = card.querySelector('.activate-slot-btn');
+      if (actBtn) {
+        actBtn.addEventListener('click', () => {
+          const val = cmdInput ? cmdInput.value.trim() : slot.command;
+          if (!val) return alert('Silakan tulis perintah agen terlebih dahulu (misal: codex, agy, atau hermes)!');
+          this.activateSlot(index, val, slot);
+        });
+      }
+
+      // Deactivate Button
+      const deactBtn = card.querySelector('.deactivate-slot-btn');
+      if (deactBtn) {
+        deactBtn.addEventListener('click', () => {
+          this.deactivateSlot(index, slot);
+        });
+      }
+
+      container.appendChild(card);
+    });
+  }
+
+  async activateSlot(index, command, slot) {
+    let name = slot.name || `Agen ${index + 1}`;
+    let role = 'General Specialist';
+    let color = slot.color || '#10B981';
+    let shape = slot.shape || 'sphere';
+
+    const cmdLower = command.toLowerCase();
+    if (cmdLower.includes('codex')) {
+      name = 'Codex';
+      role = 'Backend & Core Logic';
+      color = '#10B981';
+      shape = 'cube';
+    } else if (cmdLower.includes('agy') || cmdLower.includes('antigravity')) {
+      name = 'Antigravity (Agy)';
+      role = 'Frontend & UI/UX Design';
+      color = '#8B5CF6';
+      shape = 'polyhedron';
+    } else if (cmdLower.includes('hermes')) {
+      name = 'Hermes';
+      role = 'Architecture & QA Orchestration';
+      color = '#FF7A00';
+      shape = 'sphere';
+    }
+
+    const agentData = {
+      id: slot.id || `agent_${Date.now()}`,
+      name,
+      command,
+      role,
+      color,
+      shape,
+      davit: 10,
+      active: true
+    };
+
+    try {
+      const res = await fetch('/api/agents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(agentData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        slot.active = true;
+        slot.command = command;
+        slot.name = name;
+        slot.color = color;
+        slot.shape = shape;
+        await this.fetchAgents();
+
+        // Send conversation event to chat
+        this.appendConversationMessage({
+          role: 'system',
+          sender: 'OVIT Core',
+          text: `**Robot Agen [${name}] Berhasil Diaktifkan!**\nPerintah eksekutor: \`${command}\`. Workstation telah aktif di ruangan kantor 3D.`
+        });
+      }
+    } catch (e) {
+      alert('Gagal mengaktifkan agen: ' + e.message);
+    }
+  }
+
+  async deactivateSlot(index, slot) {
+    try {
+      await fetch(`/api/agents?id=${slot.id}`, { method: 'DELETE' });
+      slot.active = false;
+      await this.fetchAgents();
+
+      this.appendConversationMessage({
+        role: 'system',
+        sender: 'OVIT Core',
+        text: `Agen **[${slot.name}]** telah dinonaktifkan dan meninggalkan ruangan kantor.`
+      });
+    } catch (e) {
+      alert('Gagal menonaktifkan agen: ' + e.message);
     }
   }
 
@@ -331,6 +538,15 @@ class OvitApp {
     const container = document.getElementById('agents-list-container');
     if (!container) return;
     container.innerHTML = '';
+
+    if (this.agents.length === 0) {
+      container.innerHTML = `
+        <div class="p-4 rounded-xl border border-dashed border-white/10 text-center text-xs text-slate-500">
+          Belum ada agen yang aktif. Masukkan perintah agen di menu Terminal Agen untuk mendaftarkan.
+        </div>
+      `;
+      return;
+    }
 
     this.agents.forEach(agent => {
       const card = document.createElement('div');
@@ -359,7 +575,6 @@ class OvitApp {
   }
 
   loadAgentToForm(agent) {
-    this.selectedAgentForEdit = agent;
     document.getElementById('customizer-agent-id').value = agent.id;
     document.getElementById('customizer-name').value = agent.name;
     document.getElementById('customizer-command').value = agent.command;
@@ -374,11 +589,10 @@ class OvitApp {
   }
 
   resetCustomizerForm() {
-    this.selectedAgentForEdit = null;
     document.getElementById('customizer-agent-id').value = '';
     document.getElementById('customizer-name').value = 'Agen Baru';
-    document.getElementById('customizer-command').value = 'echo "Agent running"';
-    document.getElementById('customizer-role').value = 'Generalist AI Agent';
+    document.getElementById('customizer-command').value = 'echo "Agent ready"';
+    document.getElementById('customizer-role').value = 'General Specialist Agent';
     document.getElementById('customizer-shape').value = 'sphere';
     document.getElementById('customizer-color').value = '#00E5FF';
     document.getElementById('customizer-davit').value = 10;
@@ -403,7 +617,7 @@ class OvitApp {
       const res = await fetch('/api/agents', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, name, command, role, shape, color, davit })
+        body: JSON.stringify({ id, name, command, role, shape, color, davit, active: true })
       });
       const data = await res.json();
       if (data.success) {
@@ -422,9 +636,7 @@ class OvitApp {
       try {
         const data = JSON.parse(e.data);
         this.handleStreamEvent(data);
-      } catch (err) {
-        // Heartbeats
-      }
+      } catch (err) {}
     };
 
     evtSource.onerror = () => {
@@ -524,6 +736,15 @@ class OvitApp {
     const input = document.getElementById('command-input');
     const prompt = input.value.trim();
     if (!prompt) return;
+
+    if (this.agents.length === 0) {
+      this.appendConversationMessage({
+        role: 'system',
+        sender: 'OVIT Core',
+        text: '⚠️ **Belum ada agen yang aktif!** Silakan isi perintah agen di slot terminal di atas (misal ketik `codex` atau `agy`) lalu klik **[Aktifkan Agen ⚡]**.'
+      });
+      return;
+    }
 
     const targetAgent = document.getElementById('target-agent-select').value;
     const mode = document.getElementById('exec-mode-select').value;

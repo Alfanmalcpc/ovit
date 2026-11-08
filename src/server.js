@@ -237,13 +237,23 @@ function createServerHandler() {
   };
 }
 
-async function startServer({ port = 3800, autoOpen = true } = {}) {
+async function startServer(opts = {}) {
+  const options = typeof opts === 'number' ? { port: opts, autoOpen: false } : opts;
+  const port = options.port || 3800;
+  const autoOpen = options.autoOpen !== undefined ? options.autoOpen : true;
+
   const actualPort = await findAvailablePort(port);
   const server = http.createServer(createServerHandler());
 
-  server.listen(actualPort, '127.0.0.1', () => {
-    const localUrl = `http://localhost:${actualPort}`;
-    console.log(`
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(actualPort, '127.0.0.1', () => {
+      resolve();
+    });
+  });
+
+  const localUrl = `http://localhost:${actualPort}`;
+  console.log(`
   ╔══════════════════════════════════════════════════════════════════════╗
   ║                                                                      ║
   ║   ⚡  OVIT - OPEN-SOURCE MULTI-AGENT ORCHESTRATOR                    ║
@@ -256,10 +266,9 @@ async function startServer({ port = 3800, autoOpen = true } = {}) {
   ╚══════════════════════════════════════════════════════════════════════╝
 `);
 
-    if (autoOpen) {
-      openBrowser(localUrl);
-    }
-  });
+  if (autoOpen) {
+    openBrowser(localUrl);
+  }
 
   // Graceful shutdown handling
   const shutdown = () => {
@@ -267,9 +276,7 @@ async function startServer({ port = 3800, autoOpen = true } = {}) {
     orchestrator.emergencyStop();
     server.close(() => {
       console.log('[OVIT] Server ditutup dengan aman. Sampai jumpa!');
-      process.exit(0);
     });
-    setTimeout(() => process.exit(0), 1000);
   };
 
   process.on('SIGINT', shutdown);

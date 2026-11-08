@@ -6,7 +6,7 @@
   <title>OVIT — Open-Source Multi-Agent Orchestrator</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
   
-  <!-- Offline Vendor Libraries -->
+  <!-- Offline Bundled Vendor Libraries -->
   <script src="/vendor/tailwind.js"></script>
   <script src="/vendor/three.min.js"></script>
   <script src="/vendor/OrbitControls.js"></script>
@@ -121,62 +121,78 @@
     <main class="flex-1 flex overflow-hidden">
 
       <!-- ============================================================== -->
-      <!-- VIEW 1: TERMINAL AGEN (PRIMARY WORKSPACE)                      -->
+      <!-- VIEW 1: TERMINAL AGEN (WORKSPACE UTAMA)                        -->
       <!-- ============================================================== -->
       <div id="view-terminal" class="view-page flex-1 flex overflow-hidden">
         
-        <!-- CENTER STAGE (3D Office Room Animation Top + Command Input Bottom) -->
-        <div class="flex-1 flex flex-col p-4 space-y-4 overflow-hidden">
+        <!-- CENTER STAGE (3D Animation Top + Terminal Agen Middle + Command Input Bottom) -->
+        <div class="flex-1 flex flex-col p-2.5 space-y-2 overflow-y-auto">
           
-          <!-- TOP: Panggung Animasi 3D Ruang Kantor & Agen Bermata Digital -->
-          <div class="flex-1 glass-panel rounded-2xl relative overflow-hidden flex flex-col border border-white/10 shadow-2xl">
+          <!-- TOP: Panggung Animasi 3D Ruang Kantor & Workstation Standby -->
+          <div class="h-36 sm:h-40 glass-panel rounded-2xl relative overflow-hidden flex flex-col border border-white/10 shadow-2xl flex-shrink-0">
             <!-- Stage Top Bar Overlay -->
-            <div class="absolute top-3 left-4 z-10 flex items-center space-x-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10">
+            <div class="absolute top-2 left-3 z-10 flex items-center space-x-2 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-xl border border-white/10">
               <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
               <span class="text-xs font-mono font-bold text-slate-200">Ruangan Kantor 3D Multi-Agen</span>
+              <span id="active-agents-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                0 Agen Aktif (Standby)
+              </span>
             </div>
 
-            <div class="absolute top-3 right-4 z-10 flex items-center space-x-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 text-[11px] text-slate-400">
-              <span>Klik Bot / Drag Putar • Scroll Zoom</span>
+            <div class="absolute top-2 right-3 z-10 flex items-center space-x-2 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-xl border border-white/10 text-[10px] text-slate-400">
+              <span>Isi Perintah di Terminal Bawah untuk Memunculkan Bot Agen</span>
             </div>
 
             <!-- The Three.js Canvas Container -->
             <div id="three-canvas-container" class="flex-1 w-full h-full"></div>
           </div>
 
-          <!-- BOTTOM: Tempat Perintah (Command Box) "di bawah animasinya" -->
-          <div class="glass-panel p-4 rounded-2xl border border-white/10 shadow-xl space-y-3 flex-shrink-0">
+          <!-- MIDDLE: TERMINAL UNTUK MENGISI AGEN (SKETSA 2 & MEKANISME TERMINAL AGEN) -->
+          <div class="glass-panel p-2.5 rounded-2xl border border-white/10 shadow-xl space-y-1.5 flex-shrink-0">
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-2">
-                <span class="text-emerald-400 font-bold text-sm">⚡ Perintah Terpadu</span>
-                <span class="text-[11px] text-slate-400">Semua agen menjalankan 1 perintah ini secara kolaboratif</span>
+                <span class="text-emerald-400 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5">
+                  <span>💻</span> Terminal Pengisian Agen
+                </span>
+                <span class="text-[10px] text-slate-400">Tulis perintah agen (misal: <code>codex</code>, <code>agy</code>, atau <code>hermes</code>)</span>
               </div>
-              <div class="flex items-center space-x-3">
+              <button id="add-terminal-slot-btn" class="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 transition-all cursor-pointer">
+                + Tambah Slot
+              </button>
+            </div>
+
+            <!-- Dynamic Agent Terminal Slots Grid -->
+            <div id="terminal-slots-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+              <!-- Rendered via JavaScript: Slots with terminal prompt line -->
+            </div>
+          </div>
+
+          <!-- BOTTOM: Tempat Perintah (Command Box) "di bawah animasinya" -->
+          <div class="glass-panel p-2.5 rounded-2xl border border-white/10 shadow-xl space-y-2 flex-shrink-0">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <span class="text-emerald-400 font-bold text-xs">⚡ Perintah Terpadu</span>
+                <span class="text-[10px] text-slate-400">Semua agen aktif mengeksekusi instruksi ini</span>
+              </div>
+              <div class="flex items-center space-x-2">
                 <!-- Target Agent Selector -->
-                <select id="target-agent-select" class="bg-slate-900 border border-white/15 rounded-lg px-2.5 py-1 text-xs text-slate-200 font-mono focus:outline-none focus:border-emerald-400 cursor-pointer">
-                  <option value="all">Semua Agen</option>
+                <select id="target-agent-select" class="bg-slate-900 border border-white/15 rounded-lg px-2 py-0.5 text-[11px] text-slate-200 font-mono focus:outline-none focus:border-emerald-400 cursor-pointer">
+                  <option value="all">Semua Agen Aktif</option>
                 </select>
 
                 <!-- Execution Mode Selector -->
-                <select id="exec-mode-select" class="bg-slate-900 border border-white/15 rounded-lg px-2.5 py-1 text-xs text-slate-200 font-mono focus:outline-none focus:border-emerald-400 cursor-pointer">
-                  <option value="parallel">Mode Paralel (Serentak)</option>
-                  <option value="sequential">Mode Pipeline (Bertahap)</option>
+                <select id="exec-mode-select" class="bg-slate-900 border border-white/15 rounded-lg px-2 py-0.5 text-[11px] text-slate-200 font-mono focus:outline-none focus:border-emerald-400 cursor-pointer">
+                  <option value="parallel">Mode Paralel</option>
+                  <option value="sequential">Mode Pipeline</option>
                 </select>
               </div>
             </div>
 
-            <!-- Multiline Command Textarea -->
-            <div class="relative">
-              <textarea id="command-input" rows="3" class="w-full bg-black/50 border border-white/15 rounded-xl p-3.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 transition-all resize-none font-mono" placeholder="Ketik satu perintah untuk semua agen... (Contoh: Bangun sistem REST API Go + UI React)"></textarea>
-            </div>
-
-            <!-- Execution Actions Bar -->
-            <div class="flex items-center justify-between pt-1">
-              <div class="text-[11px] text-slate-500 flex items-center space-x-2 font-mono">
-                <span>Tips: Tekan <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 text-[10px]">Enter</kbd> eksekusi, <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 text-[10px]">Shift+Enter</kbd> baris baru</span>
-              </div>
-              <button id="run-command-btn" class="px-5 py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-emerald-500 to-teal-500 text-black hover:opacity-95 shadow-lg shadow-emerald-500/25 transition-all flex items-center space-x-2 cursor-pointer">
-                <span>Jalankan Perintah</span>
+            <!-- Multiline Command Textarea + Action Button Row -->
+            <div class="flex items-center space-x-2">
+              <textarea id="command-input" rows="1" class="flex-1 bg-black/50 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 transition-all resize-none font-mono" placeholder="Ketik satu perintah untuk semua agen yang terhubung... (Contoh: Bangun sistem REST API Go + UI React)"></textarea>
+              <button id="run-command-btn" class="h-9 px-4 rounded-xl font-bold text-xs bg-gradient-to-r from-emerald-500 to-teal-500 text-black hover:opacity-95 shadow-lg shadow-emerald-500/25 transition-all flex items-center space-x-1.5 cursor-pointer flex-shrink-0">
+                <span>Jalankan</span>
                 <span>🚀</span>
               </button>
             </div>
@@ -216,7 +232,7 @@
                   <span>OVIT Multi-Agent Orchestrator</span>
                 </div>
                 <p class="text-xs text-slate-300 leading-relaxed">
-                  Selamat datang di <strong>OVIT</strong>! Tuliskan satu perintah di kotak bawah animasi kantor 3D, dan seluruh agen (Hermes, Codex, Antigravity) akan berkoordinasi secara otomatis di sini.
+                  Selamat datang di <strong>OVIT</strong>! Isi perintah agen di slot terminal tengah (seperti <code>codex</code> atau <code>agy</code>), lalu klik <strong>Aktifkan Agen</strong>. Agen akan otomatis muncul di kantor 3D dan berkolaborasi di sini!
                 </p>
               </div>
             </div>
@@ -241,7 +257,7 @@
           <div class="flex items-center justify-between pb-2 border-b border-white/10">
             <div>
               <h2 class="text-2xl font-black text-white">Halaman Panel Agen</h2>
-              <p class="text-xs text-slate-400 mt-1">Kelola daftar agen dan sesuaikan tampilan visual 3D robot, peran, serta konfigurasi perintah terminal.</p>
+              <p class="text-xs text-slate-400 mt-1">Kelola dan sesuaikan tampilan visual 3D robot agen, peran, serta konfigurasi perintah terminal.</p>
             </div>
             <button id="add-new-agent-btn" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-black hover:bg-emerald-400 transition-all shadow-md cursor-pointer">
               + Tambah Agen Baru
@@ -251,9 +267,9 @@
           <!-- Two-Column Grid: List on Left, Form & 3D Preview on Right (Sketch 1) -->
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            <!-- Left: Daftar Agen -->
+            <!-- Left: Daftar Agen Terdaftar -->
             <div class="lg:col-span-5 space-y-3.5">
-              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Agen Terdaftar</h3>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Agen Tersimpan</h3>
               <div id="agents-list-container" class="space-y-3">
                 <!-- Injected via JavaScript -->
               </div>
@@ -338,7 +354,7 @@
                 <!-- Submit Button -->
                 <div class="pt-2">
                   <button type="submit" class="w-full py-2.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-black transition-all shadow-lg shadow-emerald-500/20 cursor-pointer">
-                    Simpan & Aktifkan Tampilan Agen
+                    Simpan & Daftarkan Tampilan Agen
                   </button>
                 </div>
               </form>
@@ -361,50 +377,49 @@
             </div>
             <div class="flex items-center space-x-2">
               <span class="text-xs font-mono px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                ● 3 Penyedia Terkoneksi
+                ● Model Gateway Ready
               </span>
             </div>
           </div>
 
           <!-- Grid Provider Cards -->
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            
-            <!-- Provider 1: Hermes Core Engine (Local) -->
-            <div class="glass-panel p-5 rounded-2xl border border-emerald-500/40 relative space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-xl">⚡</span>
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">AKTIF (LOCAL)</span>
-              </div>
-              <h3 class="font-bold text-base text-white">Hermes AI Lead</h3>
-              <p class="text-xs text-slate-400">Arsitektur multi-step reasoning, testing, dan koordinasi workflow utama di localhost.</p>
-              <div class="text-[11px] font-mono text-slate-500 pt-2 border-t border-white/10">
-                Adapter: <code>hermes</code> (Built-in)
-              </div>
-            </div>
-
-            <!-- Provider 2: Codex CLI -->
+            <!-- Provider 1: Codex CLI -->
             <div class="glass-panel p-5 rounded-2xl border border-white/10 space-y-3">
               <div class="flex items-center justify-between">
                 <span class="text-xl">💻</span>
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-bold border border-slate-700">TERHUBUNG</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">STANDBY CLI</span>
               </div>
               <h3 class="font-bold text-base text-white">Codex CLI Engine</h3>
-              <p class="text-xs text-slate-400">Eksekutor backend, scaffolding API REST/gRPC, optimasi algoritma kode secara otomatis.</p>
+              <p class="text-xs text-slate-400">Tulis perintah <code>codex</code> di Terminal Agen untuk mengaktifkan agen ini.</p>
               <div class="text-[11px] font-mono text-slate-500 pt-2 border-t border-white/10">
-                Adapter: <code>codex</code>
+                Command: <code>codex</code>
               </div>
             </div>
 
-            <!-- Provider 3: Antigravity CLI -->
+            <!-- Provider 2: Antigravity CLI -->
             <div class="glass-panel p-5 rounded-2xl border border-white/10 space-y-3">
               <div class="flex items-center justify-between">
                 <span class="text-xl">🔮</span>
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-bold border border-slate-700">TERHUBUNG</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 font-bold border border-purple-500/30">STANDBY CLI</span>
               </div>
               <h3 class="font-bold text-base text-white">Antigravity (Agy)</h3>
-              <p class="text-xs text-slate-400">Spesialis frontend UI/UX, styling Tailwind/Three.js, dan QA review visual.</p>
+              <p class="text-xs text-slate-400">Tulis perintah <code>agy</code> di Terminal Agen untuk mengaktifkan agen ini.</p>
               <div class="text-[11px] font-mono text-slate-500 pt-2 border-t border-white/10">
-                Adapter: <code>agy</code>
+                Command: <code>agy</code>
+              </div>
+            </div>
+
+            <!-- Provider 3: Hermes CLI -->
+            <div class="glass-panel p-5 rounded-2xl border border-white/10 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xl">⚡</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 font-bold border border-orange-500/30">STANDBY CLI</span>
+              </div>
+              <h3 class="font-bold text-base text-white">Hermes CLI</h3>
+              <p class="text-xs text-slate-400">Tulis perintah <code>hermes</code> di Terminal Agen untuk mengaktifkan agen ini.</p>
+              <div class="text-[11px] font-mono text-slate-500 pt-2 border-t border-white/10">
+                Command: <code>hermes</code>
               </div>
             </div>
 
@@ -412,7 +427,7 @@
             <div class="glass-panel p-5 rounded-2xl border border-white/10 space-y-3">
               <div class="flex items-center justify-between">
                 <span class="text-xl">🦙</span>
-                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400 font-bold border border-cyan-500/30">OFFLINE READY</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400 font-bold border border-cyan-500/30">OFFLINE SLM</span>
               </div>
               <h3 class="font-bold text-base text-white">Ollama Local SLM</h3>
               <p class="text-xs text-slate-400">Jalankan model AI offline tanpa internet langsung pada perangkat keras lokal.</p>
@@ -434,7 +449,7 @@
               </div>
             </div>
 
-            <!-- Provider 6: Claude Code / Grok -->
+            <!-- Provider 6: Claude Code & Grok -->
             <div class="glass-panel p-5 rounded-2xl border border-white/10 space-y-3">
               <div class="flex items-center justify-between">
                 <span class="text-xl">🤖</span>
@@ -446,7 +461,6 @@
                 Adapter: <code>claude</code> / <code>grok</code>
               </div>
             </div>
-
           </div>
         </div>
       </div>
