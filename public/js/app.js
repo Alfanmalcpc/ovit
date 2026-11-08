@@ -5,7 +5,7 @@
 
 const I18N = {
   ID: {
-    library: 'Halaman Pustaka',
+    providers: 'Halaman Penyedia',
     agents: 'Agen',
     terminal: 'Terminal Agen',
     operation: 'Operasi',
@@ -18,12 +18,11 @@ const I18N = {
     sequentialMode: 'Mode Bertahap',
     tabChat: 'Percakapan',
     tabTerminal: 'Terminal Mentah',
-    tabFiles: 'Arsip Berkas',
     clearLogs: 'Bersihkan Log',
     addAgentTitle: 'Tambah & Kustomisasi Tampilan Agen',
     agentNameLabel: 'Nama Agen',
-    agentColorLabel: 'Warna Avatar',
-    agentShapeLabel: 'Bentuk 3D',
+    agentColorLabel: 'Warna Avatar & Mata',
+    agentShapeLabel: 'Bentuk 3D Kepala',
     agentCommandLabel: 'Perintah CLI / Eksekutor',
     agentRoleLabel: 'Peran / Spesialisasi',
     davitLabel: 'Alokasi Davit / Donasi',
@@ -33,16 +32,14 @@ const I18N = {
     cubeShape: 'Kubus (Cyber Cube)',
     crystalShape: 'Kristal (Polyhedron)',
     torusShape: 'Cincin (Torus)',
-    emptyChat: 'Belum ada percakapan. Ketik perintah di bawah animasi untuk memulai kolaborasi antar-agen!',
+    emptyChat: 'Belum ada percakapan. Ketik perintah di bawah animasi kantor 3D untuk memulai kolaborasi!',
     emptyTerminal: 'Menunggu output konsol dari CLI agen...',
-    promptTemplates: 'Template Prompt Siap Pakai',
-    useTemplate: 'Gunakan Template',
     statusOnline: 'ONLINE',
     statusProcessing: 'RUNNING',
     davitCounter: 'Davit'
   },
   EN: {
-    library: 'Library Page',
+    providers: 'Providers Page',
     agents: 'Agents',
     terminal: 'Agent Terminal',
     operation: 'Operation',
@@ -55,12 +52,11 @@ const I18N = {
     sequentialMode: 'Sequential Mode',
     tabChat: 'Conversation',
     tabTerminal: 'Raw Terminal',
-    tabFiles: 'File Archives',
     clearLogs: 'Clear Logs',
     addAgentTitle: 'Add & Customize Agent Appearance',
     agentNameLabel: 'Agent Name',
-    agentColorLabel: 'Avatar Color',
-    agentShapeLabel: '3D Mesh Shape',
+    agentColorLabel: 'Avatar & Eye Color',
+    agentShapeLabel: '3D Head Shape',
     agentCommandLabel: 'CLI Command / Runner',
     agentRoleLabel: 'Role / Specialization',
     davitLabel: 'Davit / Donation Allocation',
@@ -70,10 +66,8 @@ const I18N = {
     cubeShape: 'Cyber Cube',
     crystalShape: 'Crystal Polyhedron',
     torusShape: 'Torus Ring',
-    emptyChat: 'No conversation yet. Type a command underneath the 3D stage to start collaboration!',
+    emptyChat: 'No conversation yet. Type a command underneath the 3D office stage to start collaboration!',
     emptyTerminal: 'Awaiting raw stdout/stderr streams from agent CLI...',
-    promptTemplates: 'Ready-to-Use Prompt Templates',
-    useTemplate: 'Use Template',
     statusOnline: 'ONLINE',
     statusProcessing: 'RUNNING',
     davitCounter: 'Davit'
@@ -101,15 +95,14 @@ class OvitApp {
     this.applyLanguage();
     this.bindEvents();
 
-    // Init 3D Visualizer Stage
+    // 1. Init 3D Visualizer Stage (Office Room + Robots with Digital Eyes)
     this.stage = new AgentThreeStage('three-canvas-container');
 
-    // Init 3D Customizer in Agent Panel
+    // 2. Init 3D Customizer in Agent Panel
     this.customizer = new AgentCustomizer('customizer-preview-container');
 
-    // Load initial data
+    // 3. Load initial data
     await this.fetchAgents();
-    await this.fetchLibrary();
     this.connectEventStream();
   }
 
@@ -149,7 +142,6 @@ class OvitApp {
       if (this.isProcessing) {
         this.triggerEmergencyStop();
       } else {
-        // Quick trigger focus on command box
         this.switchView('terminal');
         const box = document.getElementById('command-input');
         if (box) {
@@ -247,7 +239,6 @@ class OvitApp {
     const cmdInput = document.getElementById('command-input');
     if (cmdInput) cmdInput.placeholder = t.commandPlaceholder;
 
-    // Operation button state
     this.updateOperationButton();
   }
 
@@ -417,54 +408,11 @@ class OvitApp {
       const data = await res.json();
       if (data.success) {
         await this.fetchAgents();
-        alert(`Tampilan agen ${name} berhasil disimpan!`);
+        alert(`Tampilan robot agen ${name} berhasil disimpan!`);
       }
     } catch (e) {
       alert('Gagal menyimpan agen: ' + e.message);
     }
-  }
-
-  async fetchLibrary() {
-    try {
-      const res = await fetch('/api/library');
-      const data = await res.json();
-      this.renderLibraryTemplates(data.templates || []);
-    } catch (e) {
-      console.error('Failed to fetch library:', e);
-    }
-  }
-
-  renderLibraryTemplates(templates) {
-    const container = document.getElementById('library-templates-container');
-    if (!container) return;
-    container.innerHTML = '';
-    const t = I18N[this.currentLang];
-
-    templates.forEach(tmpl => {
-      const card = document.createElement('div');
-      card.className = 'glass-panel p-5 rounded-2xl flex flex-col justify-between hover:border-emerald-500/40 transition-all';
-      card.innerHTML = `
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">${tmpl.category}</span>
-          </div>
-          <h3 class="font-bold text-base text-slate-100 mb-2">${tmpl.title}</h3>
-          <p class="text-xs text-slate-400 leading-relaxed mb-4">${tmpl.description}</p>
-        </div>
-        <button class="w-full py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-emerald-500/20 text-slate-200 hover:text-emerald-300 border border-slate-700 hover:border-emerald-500/40 transition-all cursor-pointer">
-          ${t.useTemplate} →
-        </button>
-      `;
-      card.querySelector('button').addEventListener('click', () => {
-        this.switchView('terminal');
-        const input = document.getElementById('command-input');
-        if (input) {
-          input.value = tmpl.command;
-          input.focus();
-        }
-      });
-      container.appendChild(card);
-    });
   }
 
   connectEventStream() {
@@ -475,7 +423,7 @@ class OvitApp {
         const data = JSON.parse(e.data);
         this.handleStreamEvent(data);
       } catch (err) {
-        // Ping or heartbeats
+        // Heartbeats
       }
     };
 
@@ -533,7 +481,7 @@ class OvitApp {
       </div>`;
     } else {
       headerHtml = `<div class="flex items-center space-x-2 text-xs font-bold" style="color: ${msg.color || '#10B981'}">
-        <span>${msg.avatar || '🤖'}</span><span>${msg.sender}</span>
+        <span>🤖</span><span>${msg.sender}</span>
       </div>`;
     }
 
@@ -618,9 +566,7 @@ function escapeHtml(str) {
 function formatMarkdown(text) {
   if (!text) return '';
   let out = escapeHtml(text);
-  // Bold **text**
   out = out.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-bold">$1</strong>');
-  // Bullets • or -
   out = out.replace(/\n• (.*?)/g, '<br/>• $1');
   out = out.replace(/\n- (.*?)/g, '<br/>• $1');
   out = out.replace(/\n/g, '<br/>');

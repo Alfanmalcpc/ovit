@@ -14,10 +14,10 @@
   <!-- Custom Stylesheets -->
   <link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="flex flex-col h-screen w-screen bg-[#0a0d12] text-slate-100 font-sans select-none antialiased overflow-hidden">
+<body class="flex flex-col h-screen w-screen bg-[#0a0d14] text-slate-100 font-sans select-none antialiased overflow-hidden">
 
   <!-- TOP HEADER BAR -->
-  <header class="h-14 border-b border-white/10 bg-[#0f141c]/90 backdrop-blur-md px-5 flex items-center justify-between z-30 flex-shrink-0">
+  <header class="h-14 border-b border-white/10 bg-[#0f141f]/90 backdrop-blur-md px-5 flex items-center justify-between z-30 flex-shrink-0">
     <!-- Left: Branding & Breadcrumbs -->
     <div class="flex items-center space-x-4">
       <div class="flex items-center space-x-2">
@@ -66,7 +66,7 @@
   <div class="flex flex-1 overflow-hidden">
 
     <!-- LEFT SIDEBAR -->
-    <aside class="w-64 border-r border-white/10 bg-[#0c1017] flex flex-col justify-between p-4 flex-shrink-0 z-20">
+    <aside class="w-64 border-r border-white/10 bg-[#0c1018] flex flex-col justify-between p-4 flex-shrink-0 z-20">
       <div class="space-y-6">
         <!-- Logo Area -->
         <div class="px-2 pt-1 flex items-center space-x-3">
@@ -93,10 +93,10 @@
             <span data-i18n="agents">Agen</span>
           </button>
 
-          <!-- Halaman Pustaka (Library) -->
-          <button data-view="library" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold border border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-all cursor-pointer">
-            <span class="text-base">📚</span>
-            <span data-i18n="library">Halaman Pustaka</span>
+          <!-- Halaman Penyedia (Provider Page) -->
+          <button data-view="providers" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold border border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-all cursor-pointer">
+            <span class="text-base">🔌</span>
+            <span data-i18n="providers">Halaman Penyedia</span>
           </button>
         </nav>
       </div>
@@ -125,19 +125,19 @@
       <!-- ============================================================== -->
       <div id="view-terminal" class="view-page flex-1 flex overflow-hidden">
         
-        <!-- CENTER STAGE (3D Animation Top + Command Input Bottom) -->
+        <!-- CENTER STAGE (3D Office Room Animation Top + Command Input Bottom) -->
         <div class="flex-1 flex flex-col p-4 space-y-4 overflow-hidden">
           
-          <!-- TOP: Panggung Animasi 3D Multi-Agen -->
+          <!-- TOP: Panggung Animasi 3D Ruang Kantor & Agen Bermata Digital -->
           <div class="flex-1 glass-panel rounded-2xl relative overflow-hidden flex flex-col border border-white/10 shadow-2xl">
             <!-- Stage Top Bar Overlay -->
             <div class="absolute top-3 left-4 z-10 flex items-center space-x-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10">
-              <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
-              <span class="text-xs font-mono font-bold text-slate-200">3D Pod Stage — Active Multi-Agent Space</span>
+              <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+              <span class="text-xs font-mono font-bold text-slate-200">Ruangan Kantor 3D Multi-Agen</span>
             </div>
 
             <div class="absolute top-3 right-4 z-10 flex items-center space-x-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 text-[11px] text-slate-400">
-              <span>Drag to Rotate • Scroll to Zoom</span>
+              <span>Klik Bot / Drag Putar • Scroll Zoom</span>
             </div>
 
             <!-- The Three.js Canvas Container -->
@@ -149,7 +149,7 @@
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-2">
                 <span class="text-emerald-400 font-bold text-sm">⚡ Perintah Terpadu</span>
-                <span class="text-[11px] text-slate-400">Semua agen menjalankan 1 perintah ini secara cerdas</span>
+                <span class="text-[11px] text-slate-400">Semua agen menjalankan 1 perintah ini secara kolaboratif</span>
               </div>
               <div class="flex items-center space-x-3">
                 <!-- Target Agent Selector -->
@@ -173,7 +173,7 @@
             <!-- Execution Actions Bar -->
             <div class="flex items-center justify-between pt-1">
               <div class="text-[11px] text-slate-500 flex items-center space-x-2 font-mono">
-                <span>Tips: Tekan <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 text-[10px]">Enter</kbd> untuk eksekusi, <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 text-[10px]">Shift+Enter</kbd> baris baru</span>
+                <span>Tips: Tekan <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 text-[10px]">Enter</kbd> eksekusi, <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 text-[10px]">Shift+Enter</kbd> baris baru</span>
               </div>
               <button id="run-command-btn" class="px-5 py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-emerald-500 to-teal-500 text-black hover:opacity-95 shadow-lg shadow-emerald-500/25 transition-all flex items-center space-x-2 cursor-pointer">
                 <span>Jalankan Perintah</span>
@@ -185,7 +185,7 @@
         </div>
 
         <!-- RIGHT PANEL: Hasil Percakapan & Raw Terminal "di sisi sebelah kanan nya" -->
-        <aside class="w-96 border-l border-white/10 bg-[#0c1017] flex flex-col flex-shrink-0 z-20">
+        <aside class="w-96 border-l border-white/10 bg-[#0c1018] flex flex-col flex-shrink-0 z-20">
           <!-- Feed Header Tabs -->
           <div class="h-12 border-b border-white/10 px-3 flex items-center justify-between bg-slate-900/40">
             <div class="flex items-center space-x-1">
@@ -216,7 +216,7 @@
                   <span>OVIT Multi-Agent Orchestrator</span>
                 </div>
                 <p class="text-xs text-slate-300 leading-relaxed">
-                  Selamat datang di <strong>OVIT</strong>! Tuliskan satu perintah di kotak bawah animasi 3D, dan seluruh agen (Hermes, Codex, Antigravity) akan berkoordinasi secara otomatis di sini.
+                  Selamat datang di <strong>OVIT</strong>! Tuliskan satu perintah di kotak bawah animasi kantor 3D, dan seluruh agen (Hermes, Codex, Antigravity) akan berkoordinasi secara otomatis di sini.
                 </p>
               </div>
             </div>
@@ -241,7 +241,7 @@
           <div class="flex items-center justify-between pb-2 border-b border-white/10">
             <div>
               <h2 class="text-2xl font-black text-white">Halaman Panel Agen</h2>
-              <p class="text-xs text-slate-400 mt-1">Kelola daftar agen dan sesuaikan tampilan visual 3D, peran, serta konfigurasi perintah terminal.</p>
+              <p class="text-xs text-slate-400 mt-1">Kelola daftar agen dan sesuaikan tampilan visual 3D robot, peran, serta konfigurasi perintah terminal.</p>
             </div>
             <button id="add-new-agent-btn" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-black hover:bg-emerald-400 transition-all shadow-md cursor-pointer">
               + Tambah Agen Baru
@@ -271,7 +271,7 @@
                 <!-- 3D Live Preview Box (Tampilan) -->
                 <div>
                   <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
-                    Tampilan Preview 3D (Real-Time)
+                    Tampilan Preview 3D (Robot Bermata Digital)
                   </label>
                   <div class="h-48 rounded-xl bg-black/60 border border-white/10 relative overflow-hidden flex items-center justify-center">
                     <div id="customizer-preview-container" class="w-full h-full"></div>
@@ -295,7 +295,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <!-- Bentuk 3D (Shape) -->
                   <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Bentuk 3D Avatar</label>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Bentuk 3D Kepala Bot</label>
                     <select id="customizer-shape" class="w-full bg-slate-900 border border-white/15 rounded-xl px-3.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-emerald-400 cursor-pointer">
                       <option value="sphere">Bulat (Sphere Core)</option>
                       <option value="cube">Kubus (Cyber Cube)</option>
@@ -306,7 +306,7 @@
 
                   <!-- Warna Avatar -->
                   <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Warna Shader Avatar</label>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Warna Bot & Mata Digital</label>
                     <div class="flex items-center space-x-2">
                       <input type="color" id="customizer-color" value="#10B981" class="w-10 h-8 rounded-lg border border-white/20 bg-transparent cursor-pointer">
                       <!-- Swatches -->
@@ -350,17 +350,103 @@
       </div>
 
       <!-- ============================================================== -->
-      <!-- VIEW 3: HALAMAN PUSTAKA (LIBRARY)                              -->
+      <!-- VIEW 3: HALAMAN PENYEDIA (PROVIDER & MODEL INTEGRATIONS)      -->
       <!-- ============================================================== -->
-      <div id="view-library" class="view-page flex-1 p-6 overflow-y-auto hidden">
+      <div id="view-providers" class="view-page flex-1 p-6 overflow-y-auto hidden">
         <div class="max-w-6xl mx-auto space-y-6">
-          <div class="pb-2 border-b border-white/10">
-            <h2 class="text-2xl font-black text-white">Halaman Pustaka & Workflow</h2>
-            <p class="text-xs text-slate-400 mt-1">Koleksi template prompt multi-agen siap pakai untuk mempercepat pembuatan aplikasi dan analisis kode.</p>
+          <div class="pb-2 border-b border-white/10 flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-black text-white">Halaman Penyedia (AI Providers)</h2>
+              <p class="text-xs text-slate-400 mt-1">Konfigurasi penyedia model AI lokal, API gateway, dan CLI agen yang terhubung ke dalam ekosistem OVIT.</p>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="text-xs font-mono px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                ● 3 Penyedia Terkoneksi
+              </span>
+            </div>
           </div>
 
-          <div id="library-templates-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Injected via JavaScript -->
+          <!-- Grid Provider Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            
+            <!-- Provider 1: Hermes Core Engine (Local) -->
+            <div class="glass-panel p-5 rounded-2xl border border-emerald-500/40 relative space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xl">⚡</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">AKTIF (LOCAL)</span>
+              </div>
+              <h3 class="font-bold text-base text-white">Hermes AI Lead</h3>
+              <p class="text-xs text-slate-400">Arsitektur multi-step reasoning, testing, dan koordinasi workflow utama di localhost.</p>
+              <div class="text-[11px] font-mono text-slate-500 pt-2 border-t border-white/10">
+                Adapter: <code>hermes</code> (Built-in)
+              </div>
+            </div>
+
+            <!-- Provider 2: Codex CLI -->
+            <div class="glass-panel p-5 rounded-2xl border border-white/10 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xl">💻</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-bold border border-slate-700">TERHUBUNG</span>
+              </div>
+              <h3 class="font-bold text-base text-white">Codex CLI Engine</h3>
+              <p class="text-xs text-slate-400">Eksekutor backend, scaffolding API REST/gRPC, optimasi algoritma kode secara otomatis.</p>
+              <div class="text-[11px] font-mono text-slate-500 pt-2 border-t border-white/10">
+                Adapter: <code>codex</code>
+              </div>
+            </div>
+
+            <!-- Provider 3: Antigravity CLI -->
+            <div class="glass-panel p-5 rounded-2xl border border-white/10 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xl">🔮</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-bold border border-slate-700">TERHUBUNG</span>
+              </div>
+              <h3 class="font-bold text-base text-white">Antigravity (Agy)</h3>
+              <p class="text-xs text-slate-400">Spesialis frontend UI/UX, styling Tailwind/Three.js, dan QA review visual.</p>
+              <div class="text-[11px] font-mono text-slate-500 pt-2 border-t border-white/10">
+                Adapter: <code>agy</code>
+              </div>
+            </div>
+
+            <!-- Provider 4: Ollama Local SLM -->
+            <div class="glass-panel p-5 rounded-2xl border border-white/10 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xl">🦙</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400 font-bold border border-cyan-500/30">OFFLINE READY</span>
+              </div>
+              <h3 class="font-bold text-base text-white">Ollama Local SLM</h3>
+              <p class="text-xs text-slate-400">Jalankan model AI offline tanpa internet langsung pada perangkat keras lokal.</p>
+              <div class="text-[11px] font-mono text-slate-500 pt-2 border-t border-white/10">
+                Host: <code>http://127.0.0.1:11434</code>
+              </div>
+            </div>
+
+            <!-- Provider 5: Custom OpenAI / 9Router Gateway -->
+            <div class="glass-panel p-5 rounded-2xl border border-white/10 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xl">🌐</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-bold border border-slate-700">GATEWAY</span>
+              </div>
+              <h3 class="font-bold text-base text-white">9Router / OpenAI REST</h3>
+              <p class="text-xs text-slate-400">Hubungkan OpenAI-compatible endpoint ke penyedia cloud atau VPS pribadi.</p>
+              <div class="text-[11px] font-mono text-slate-500 pt-2 border-t border-white/10">
+                Endpoint: <code>http://localhost:20128/v1</code>
+              </div>
+            </div>
+
+            <!-- Provider 6: Claude Code / Grok -->
+            <div class="glass-panel p-5 rounded-2xl border border-white/10 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xl">🤖</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-bold border border-slate-700">CLI TOOL</span>
+              </div>
+              <h3 class="font-bold text-base text-white">Claude Code & Grok</h3>
+              <p class="text-xs text-slate-400">Adapter delegasi subtask untuk CLI Claude Code dan Grok CLI di terminal.</p>
+              <div class="text-[11px] font-mono text-slate-500 pt-2 border-t border-white/10">
+                Adapter: <code>claude</code> / <code>grok</code>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
