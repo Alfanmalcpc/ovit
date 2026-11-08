@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OVIT — Open-Source Multi-Agent Orchestrator</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+  
+  <!-- Offline Vendor Libraries -->
+  <script src="/vendor/tailwind.js"></script>
+  <script src="/vendor/three.min.js"></script>
+  <script src="/vendor/OrbitControls.js"></script>
+
+  <!-- Custom Stylesheets -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flex flex-col h-screen w-screen bg-[#0a0d12] text-slate-100 font-sans select-none antialiased overflow-hidden">
+
+  <!-- TOP HEADER BAR -->
+  <header class="h-14 border-b border-white/10 bg-[#0f141c]/90 backdrop-blur-md px-5 flex items-center justify-between z-30 flex-shrink-0">
+    <!-- Left: Branding & Breadcrumbs -->
+    <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-2">
+        <span class="text-xl font-black tracking-tighter bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
+          ovit
+        </span>
+        <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold">
+          v1.0.0
+        </span>
+      </div>
+      <div class="h-4 w-[1px] bg-white/15"></div>
+      <div class="flex items-center space-x-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 status-pulse"></span>
+        <span id="engine-status-pill" class="text-xs font-mono font-bold text-emerald-400" data-i18n="statusOnline">ONLINE</span>
+        <span class="text-[11px] text-slate-500 font-mono">(12ms)</span>
+      </div>
+    </div>
+
+    <!-- Right Header Controls -->
+    <div class="flex items-center space-x-3.5">
+      <!-- [Operasi] Action Button -->
+      <button id="operation-btn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30 transition-all cursor-pointer">
+        <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 mr-2"></span>[<span data-i18n="operation">Operasi</span>]
+      </button>
+
+      <!-- Theme Switcher -->
+      <button id="theme-toggle-btn" title="Toggle Theme" class="w-8 h-8 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-white/10 flex items-center justify-center text-sm transition-all cursor-pointer">
+        <span id="theme-icon">☀️</span>
+      </button>
+
+      <!-- Language Selector -->
+      <button id="lang-toggle-btn" title="Switch Language" class="px-2.5 h-8 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-white/10 flex items-center justify-center text-xs font-mono font-bold text-slate-300 transition-all cursor-pointer">
+        🌐 <span id="lang-label" class="ml-1.5">ID</span>
+      </button>
+
+      <!-- Davit / Donasi & User Profile -->
+      <div class="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-800/70 border border-emerald-500/30 shadow-sm">
+        <span class="text-sm">🪙</span>
+        <span class="text-xs font-mono font-bold text-emerald-400" id="header-davit-count">10</span>
+        <span class="text-[11px] text-slate-400 font-medium" data-i18n="davitCounter">Davit</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WRAPPER: SIDEBAR + CONTENT AREA -->
+  <div class="flex flex-1 overflow-hidden">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="w-64 border-r border-white/10 bg-[#0c1017] flex flex-col justify-between p-4 flex-shrink-0 z-20">
+      <div class="space-y-6">
+        <!-- Logo Area -->
+        <div class="px-2 pt-1 flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center text-black font-black text-lg shadow-lg shadow-emerald-500/20">
+            ⚡
+          </div>
+          <div>
+            <div class="font-extrabold text-base tracking-tight text-white leading-tight">OVIT CORE</div>
+            <div class="text-[11px] text-slate-400">Multi-Agent Engine</div>
+          </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="space-y-1.5">
+          <!-- Terminal Agen (Active Workspace) -->
+          <button data-view="terminal" class="nav-item active w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold border border-emerald-500/50 bg-emerald-500/10 text-emerald-400 transition-all cursor-pointer">
+            <span class="text-base">⚡</span>
+            <span data-i18n="terminal">Terminal Agen</span>
+          </button>
+
+          <!-- Agen (Customizer & Agent Management) -->
+          <button data-view="agents" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold border border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-all cursor-pointer">
+            <span class="text-base">🤖</span>
+            <span data-i18n="agents">Agen</span>
+          </button>
+
+          <!-- Halaman Pustaka (Library) -->
+          <button data-view="library" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold border border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-all cursor-pointer">
+            <span class="text-base">📚</span>
+            <span data-i18n="library">Halaman Pustaka</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="p-3 rounded-xl bg-slate-900/60 border border-white/5 space-y-1.5">
+        <div class="text-[11px] font-mono text-slate-400 flex items-center justify-between">
+          <span>Host:</span>
+          <span class="text-emerald-400 font-bold">127.0.0.1</span>
+        </div>
+        <div class="text-[11px] font-mono text-slate-400 flex items-center justify-between">
+          <span>Mode:</span>
+          <span class="text-slate-300">Local-First</span>
+        </div>
+        <div class="text-[10px] text-slate-500 pt-1 text-center border-t border-white/5">
+          Open Source by @Alfanmalcpc
+        </div>
+      </div>
+    </aside>
+
+    <!-- CENTER & RIGHT DYNAMIC VIEWPORTS -->
+    <main class="flex-1 flex overflow-hidden">
+
+      <!-- ============================================================== -->
+      <!-- VIEW 1: TERMINAL AGEN (PRIMARY WORKSPACE)                      -->
+      <!-- ============================================================== -->
+      <div id="view-terminal" class="view-page flex-1 flex overflow-hidden">
+        
+        <!-- CENTER STAGE (3D Animation Top + Command Input Bottom) -->
+        <div class="flex-1 flex flex-col p-4 space-y-4 overflow-hidden">
+          
+          <!-- TOP: Panggung Animasi 3D Multi-Agen -->
+          <div class="flex-1 glass-panel rounded-2xl relative overflow-hidden flex flex-col border border-white/10 shadow-2xl">
+            <!-- Stage Top Bar Overlay -->
+            <div class="absolute top-3 left-4 z-10 flex items-center space-x-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10">
+              <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+              <span class="text-xs font-mono font-bold text-slate-200">3D Pod Stage — Active Multi-Agent Space</span>
+            </div>
+
+            <div class="absolute top-3 right-4 z-10 flex items-center space-x-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 text-[11px] text-slate-400">
+              <span>Drag to Rotate • Scroll to Zoom</span>
+            </div>
+
+            <!-- The Three.js Canvas Container -->
+            <div id="three-canvas-container" class="flex-1 w-full h-full"></div>
+          </div>
+
+          <!-- BOTTOM: Tempat Perintah (Command Box) "di bawah animasinya" -->
+          <div class="glass-panel p-4 rounded-2xl border border-white/10 shadow-xl space-y-3 flex-shrink-0">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <span class="text-emerald-400 font-bold text-sm">⚡ Perintah Terpadu</span>
+                <span class="text-[11px] text-slate-400">Semua agen menjalankan 1 perintah ini secara cerdas</span>
+              </div>
+              <div class="flex items-center space-x-3">
+                <!-- Target Agent Selector -->
+                <select id="target-agent-select" class="bg-slate-900 border border-white/15 rounded-lg px-2.5 py-1 text-xs text-slate-200 font-mono focus:outline-none focus:border-emerald-400 cursor-pointer">
+                  <option value="all">Semua Agen</option>
+                </select>
+
+                <!-- Execution Mode Selector -->
+                <select id="exec-mode-select" class="bg-slate-900 border border-white/15 rounded-lg px-2.5 py-1 text-xs text-slate-200 font-mono focus:outline-none focus:border-emerald-400 cursor-pointer">
+                  <option value="parallel">Mode Paralel (Serentak)</option>
+                  <option value="sequential">Mode Pipeline (Bertahap)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Multiline Command Textarea -->
+            <div class="relative">
+              <textarea id="command-input" rows="3" class="w-full bg-black/50 border border-white/15 rounded-xl p-3.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 transition-all resize-none font-mono" placeholder="Ketik satu perintah untuk semua agen... (Contoh: Bangun sistem REST API Go + UI React)"></textarea>
+            </div>
+
+            <!-- Execution Actions Bar -->
+            <div class="flex items-center justify-between pt-1">
+              <div class="text-[11px] text-slate-500 flex items-center space-x-2 font-mono">
+                <span>Tips: Tekan <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 text-[10px]">Enter</kbd> untuk eksekusi, <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 text-[10px]">Shift+Enter</kbd> baris baru</span>
+              </div>
+              <button id="run-command-btn" class="px-5 py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-emerald-500 to-teal-500 text-black hover:opacity-95 shadow-lg shadow-emerald-500/25 transition-all flex items-center space-x-2 cursor-pointer">
+                <span>Jalankan Perintah</span>
+                <span>🚀</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT PANEL: Hasil Percakapan & Raw Terminal "di sisi sebelah kanan nya" -->
+        <aside class="w-96 border-l border-white/10 bg-[#0c1017] flex flex-col flex-shrink-0 z-20">
+          <!-- Feed Header Tabs -->
+          <div class="h-12 border-b border-white/10 px-3 flex items-center justify-between bg-slate-900/40">
+            <div class="flex items-center space-x-1">
+              <button data-tab="chat" class="feed-tab-btn border-b-2 border-emerald-400 text-emerald-400 px-3 py-2 text-xs font-bold transition-all cursor-pointer" data-i18n="tabChat">
+                Percakapan
+              </button>
+              <button data-tab="terminal" class="feed-tab-btn text-slate-400 px-3 py-2 text-xs font-bold hover:text-slate-200 transition-all cursor-pointer" data-i18n="tabTerminal">
+                Terminal Mentah
+              </button>
+            </div>
+            <div>
+              <button id="clear-chat-btn" class="text-[10px] text-slate-500 hover:text-slate-300 px-2 py-1 rounded hover:bg-white/5 transition-all" data-i18n="clearLogs">
+                Bersihkan
+              </button>
+              <button id="clear-terminal-btn" class="hidden text-[10px] text-slate-500 hover:text-slate-300 px-2 py-1 rounded hover:bg-white/5 transition-all" data-i18n="clearLogs">
+                Bersihkan
+              </button>
+            </div>
+          </div>
+
+          <!-- Feed Content: Tab 1 (Chat Feed) -->
+          <div id="feed-content-chat" class="feed-tab-content flex-1 p-4 overflow-y-auto space-y-3">
+            <div id="chat-stream-content">
+              <!-- Initial Welcome Bubble -->
+              <div class="p-3.5 rounded-xl bg-slate-900/70 border border-white/10 space-y-1.5">
+                <div class="flex items-center space-x-2 text-xs font-bold text-emerald-400">
+                  <span>⚡</span>
+                  <span>OVIT Multi-Agent Orchestrator</span>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                  Selamat datang di <strong>OVIT</strong>! Tuliskan satu perintah di kotak bawah animasi 3D, dan seluruh agen (Hermes, Codex, Antigravity) akan berkoordinasi secara otomatis di sini.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feed Content: Tab 2 (Raw Terminal Stream) -->
+          <div id="feed-content-terminal" class="feed-tab-content flex-1 p-3 overflow-y-auto bg-black font-mono text-xs hidden">
+            <div id="terminal-stream-content" class="space-y-1">
+              <div class="text-slate-600">[SYSTEM] Terminal PTY Bridge connected. Ready for CLI streams.</div>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- VIEW 2: HALAMAN PANEL AGEN (TAMBAH TAMPILAN AGEN - SKETSA 1)   -->
+      <!-- ============================================================== -->
+      <div id="view-agents" class="view-page flex-1 p-6 overflow-y-auto hidden">
+        <div class="max-w-6xl mx-auto space-y-6">
+          
+          <div class="flex items-center justify-between pb-2 border-b border-white/10">
+            <div>
+              <h2 class="text-2xl font-black text-white">Halaman Panel Agen</h2>
+              <p class="text-xs text-slate-400 mt-1">Kelola daftar agen dan sesuaikan tampilan visual 3D, peran, serta konfigurasi perintah terminal.</p>
+            </div>
+            <button id="add-new-agent-btn" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-black hover:bg-emerald-400 transition-all shadow-md cursor-pointer">
+              + Tambah Agen Baru
+            </button>
+          </div>
+
+          <!-- Two-Column Grid: List on Left, Form & 3D Preview on Right (Sketch 1) -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left: Daftar Agen -->
+            <div class="lg:col-span-5 space-y-3.5">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Agen Terdaftar</h3>
+              <div id="agents-list-container" class="space-y-3">
+                <!-- Injected via JavaScript -->
+              </div>
+            </div>
+
+            <!-- Right: Tambah / Kustomisasi Tampilan Agen -->
+            <div class="lg:col-span-7 glass-panel p-6 rounded-2xl border border-white/10 space-y-5">
+              <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <span>🎨</span> Tambah & Kustomisasi Tampilan Agen
+              </h3>
+
+              <form id="agent-customizer-form" class="space-y-5">
+                <input type="hidden" id="customizer-agent-id">
+
+                <!-- 3D Live Preview Box (Tampilan) -->
+                <div>
+                  <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                    Tampilan Preview 3D (Real-Time)
+                  </label>
+                  <div class="h-48 rounded-xl bg-black/60 border border-white/10 relative overflow-hidden flex items-center justify-center">
+                    <div id="customizer-preview-container" class="w-full h-full"></div>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <!-- Nama Agen -->
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Nama Agen</label>
+                    <input type="text" id="customizer-name" class="w-full bg-slate-900 border border-white/15 rounded-xl px-3.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-emerald-400" placeholder="Contoh: Codex Engine">
+                  </div>
+
+                  <!-- Perintah CLI -->
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Perintah Terminal / Eksekutor</label>
+                    <input type="text" id="customizer-command" class="w-full bg-slate-900 border border-white/15 rounded-xl px-3.5 py-2 text-xs font-mono text-emerald-400 focus:outline-none focus:border-emerald-400" placeholder="Contoh: codex / agy / hermes">
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <!-- Bentuk 3D (Shape) -->
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Bentuk 3D Avatar</label>
+                    <select id="customizer-shape" class="w-full bg-slate-900 border border-white/15 rounded-xl px-3.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-emerald-400 cursor-pointer">
+                      <option value="sphere">Bulat (Sphere Core)</option>
+                      <option value="cube">Kubus (Cyber Cube)</option>
+                      <option value="polyhedron">Kristal (Polyhedron)</option>
+                      <option value="torus">Cincin Orbital (Torus)</option>
+                    </select>
+                  </div>
+
+                  <!-- Warna Avatar -->
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Warna Shader Avatar</label>
+                    <div class="flex items-center space-x-2">
+                      <input type="color" id="customizer-color" value="#10B981" class="w-10 h-8 rounded-lg border border-white/20 bg-transparent cursor-pointer">
+                      <!-- Swatches -->
+                      <div class="flex items-center space-x-1.5">
+                        <span class="color-swatch w-6 h-6 rounded-md bg-[#10B981] cursor-pointer hover:scale-110 transition-transform" data-color="#10B981"></span>
+                        <span class="color-swatch w-6 h-6 rounded-md bg-[#00E5FF] cursor-pointer hover:scale-110 transition-transform" data-color="#00E5FF"></span>
+                        <span class="color-swatch w-6 h-6 rounded-md bg-[#FF7A00] cursor-pointer hover:scale-110 transition-transform" data-color="#FF7A00"></span>
+                        <span class="color-swatch w-6 h-6 rounded-md bg-[#8B5CF6] cursor-pointer hover:scale-110 transition-transform" data-color="#8B5CF6"></span>
+                        <span class="color-swatch w-6 h-6 rounded-md bg-[#EF4444] cursor-pointer hover:scale-110 transition-transform" data-color="#EF4444"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <!-- Peran / Spesialisasi -->
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Peran / Spesialisasi Agen</label>
+                    <input type="text" id="customizer-role" class="w-full bg-slate-900 border border-white/15 rounded-xl px-3.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-emerald-400" placeholder="Contoh: Backend & Security">
+                  </div>
+
+                  <!-- Donasi / Davit -->
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Donasi / Davit</label>
+                    <input type="number" id="customizer-davit" value="10" min="1" max="100" class="w-full bg-slate-900 border border-white/15 rounded-xl px-3.5 py-2 text-xs font-mono text-emerald-400 focus:outline-none focus:border-emerald-400">
+                  </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-2">
+                  <button type="submit" class="w-full py-2.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-black transition-all shadow-lg shadow-emerald-500/20 cursor-pointer">
+                    Simpan & Aktifkan Tampilan Agen
+                  </button>
+                </div>
+              </form>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ============================================================== -->
+      <!-- VIEW 3: HALAMAN PUSTAKA (LIBRARY)                              -->
+      <!-- ============================================================== -->
+      <div id="view-library" class="view-page flex-1 p-6 overflow-y-auto hidden">
+        <div class="max-w-6xl mx-auto space-y-6">
+          <div class="pb-2 border-b border-white/10">
+            <h2 class="text-2xl font-black text-white">Halaman Pustaka & Workflow</h2>
+            <p class="text-xs text-slate-400 mt-1">Koleksi template prompt multi-agen siap pakai untuk mempercepat pembuatan aplikasi dan analisis kode.</p>
+          </div>
+
+          <div id="library-templates-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Injected via JavaScript -->
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Main App Script -->
+  <script src="/js/threeScene.js"></script>
+  <script src="/js/agentCustomizer.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

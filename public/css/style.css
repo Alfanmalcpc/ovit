@@ -1,0 +1,136 @@
+/* OVIT Design System & Cinematic Dark Theme */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg-primary: #0a0d12;
+  --bg-surface: #0f141c;
+  --bg-card: rgba(18, 24, 35, 0.75);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-glow: rgba(0, 229, 255, 0.25);
+  --text-primary: #f0f4f8;
+  --text-muted: #8b9bb0;
+  --accent-cyan: #00e5ff;
+  --accent-green: #10b981;
+  --accent-orange: #ff7a00;
+  --accent-purple: #8b5cf6;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', Consolas, monospace;
+}
+
+/* Light Mode Overrides */
+body.light-mode {
+  --bg-primary: #f4f6f9;
+  --bg-surface: #ffffff;
+  --bg-card: rgba(255, 255, 255, 0.9);
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-glow: rgba(16, 185, 129, 0.3);
+  --text-primary: #0f172a;
+  --text-muted: #64748b;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  user-select: none;
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-panel:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Glow effects */
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+}
+.glow-green {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
+}
+.glow-orange {
+  box-shadow: 0 0 20px rgba(255, 122, 0, 0.35);
+}
+
+/* 3D Canvas Container */
+#three-canvas-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.6) 0%, rgba(10, 13, 18, 0.95) 100%);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Terminal Console Styling */
+.terminal-font {
+  font-family: var(--font-mono);
+}
+
+/* Pulse Animation for status lights */
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 0.3; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.status-pulse {
+  animation: pulse-ring 2s infinite ease-in-out;
+}
+
+/* Code block highlight */
+pre, code {
+  font-family: var(--font-mono);
+}
+pre {
+  background: rgba(5, 8, 13, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 12px;
+  overflow-x: auto;
+}
+
+/* Tab button active state */
+.nav-tab.active {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+/* Agent Avatar Shape preview */
+.agent-pod-bowl {
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+}

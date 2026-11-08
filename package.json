@@ -1,0 +1,31 @@
+{
+  "name": "ovit",
+  "version": "1.0.0",
+  "description": "Open-Source Multi-Agent Orchestrator with 3D Visualizer & Local Terminal Bridge",
+  "author": "Mochamad Alfan Candrapratama (@Alfanmalcpc)",
+  "license": "MIT",
+  "main": "src/server.js",
+  "bin": {
+    "ovit": "bin/ovit.js"
+  },
+  "scripts": {
+    "start": "node bin/ovit.js",
+    "dev": "node bin/ovit.js --dev",
+    "test": "node test/verify.js"
+  },
+  "keywords": [
+    "multi-agent",
+    "ai-agents",
+    "orchestrator",
+    "threejs",
+    "local-first",
+    "terminal",
+    "hermes",
+    "codex",
+    "antigravity",
+    "open-source"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

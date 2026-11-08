@@ -1,0 +1,44 @@
+[
+  {
+    "id": "hermes",
+    "name": "Hermes",
+    "shape": "sphere",
+    "color": "#FF7A00",
+    "command": "hermes",
+    "role": "System Architect & Testing Lead",
+    "davit": 10,
+    "status": "ready",
+    "stats": {
+      "tasksCompleted": 14,
+      "efficiency": "99.2%"
+    }
+  },
+  {
+    "id": "codex",
+    "name": "Codex",
+    "shape": "cube",
+    "color": "#10B981",
+    "command": "codex",
+    "role": "Backend Engineering & Algorithms",
+    "davit": 10,
+    "status": "ready",
+    "stats": {
+      "tasksCompleted": 19,
+      "efficiency": "98.5%"
+    }
+  },
+  {
+    "id": "antigravity",
+    "name": "Antigravity (Agy)",
+    "shape": "polyhedron",
+    "color": "#8B5CF6",
+    "command": "agy",
+    "role": "Frontend UI/UX & Code Reviewer",
+    "davit": 10,
+    "status": "ready",
+    "stats": {
+      "tasksCompleted": 11,
+      "efficiency": "97.8%"
+    }
+  }
+]
